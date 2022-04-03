@@ -8,17 +8,13 @@
 #include "environment.h"
 
 namespace blab {
-    template <class Input, class Output>
+    template<class Subject>
     class experiment {
     private:
-        using Subject = std::function<Output(Input)>;
-
         std::vector<std::pair<std::string, Subject>> subjects;
-        std::function<bool(Output)> checker;
-        Input input;
+        std::function<bool(Subject)> tester;
     public:
-        experiment(std::function<bool(Output)> checker,
-                   Input input): subjects({}), checker(checker), input(input) {
+        explicit experiment(std::function<bool(Subject)> tester) : subjects({}), tester(tester) {
         }
 
         void add_subject(const std::string &name, Subject subject) {
@@ -29,16 +25,15 @@ namespace blab {
             report result_report{};
 
             blab::static_environment::instance()->clear();
-            for(const auto &[name, subject] : subjects) {
-                Input inputCopy = input;
-                Output output = subject(inputCopy);
+            for (const auto &[name, subject]: subjects) {
+                bool result = tester(subject);
 
                 auto metrics = blab::static_environment::instance()->get_metrics();
 
-                std::unique_ptr<metric> success_metric(new bool_metric(checker(output)));
-                
+                std::unique_ptr<metric> success_metric(new bool_metric(result));
+
                 metrics.push_back({"Success?", std::move(success_metric)});
-                
+
                 result_report.add_row(name, metrics);
             }
 
