@@ -128,3 +128,7 @@ std::ofstream output("out.csv");
 // CSV format
 std::cout << report.to_csv() << std::endl;
 ```
+
+## License
+
+MIT © [Artiom Tretjakovas](https://github.com/ArtiomTr)
